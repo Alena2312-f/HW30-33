@@ -12,7 +12,9 @@ dependencies = [
     "pillow (>=12.0.0,<13.0.0)",
     "psycopg2-binary (>=2.9.11,<3.0.0)",
     "python-dotenv (>=1.2.1,<2.0.0)",
-    "redis (>=7.0.1,<8.0.0)"
+    "redis (>=7.0.1,<8.0.0)",
+    "djangorestframework (>=3.16.1,<4.0.0)",
+    "django-filter (>=25.2,<26.0)"
 ]
 
 
@@ -36,18 +38,6 @@ exclude = 'venv'
 
 [tool.black]
 line-length = 119
-exclude = '''
-(
-  /(
-      \.eggs         # Исключить несколько общих каталогов
-    | \.git          # в корне проекта
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | dist
-  )/
-'''
 
 [tool.isort]
 line_length = 119
