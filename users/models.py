@@ -24,11 +24,8 @@ class User(AbstractUser):
         return self.email
 
 
-
 class Payment(models.Model):
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="payments"
-    )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="payments")
     payment_date = models.DateField()
     paid_course = models.ForeignKey(
         "lms.Course",
