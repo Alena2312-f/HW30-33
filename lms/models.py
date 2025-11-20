@@ -13,6 +13,10 @@ class Course(models.Model):
     class Meta:
         verbose_name = "Курс"
         verbose_name_plural = "Курсы"
+        permissions = [
+            ("can_view", "can_view_course"),
+            ("update", "can_update_course"),
+        ]
 
     def __str__(self):
         return self.name
@@ -31,6 +35,10 @@ class Lesson(models.Model):
     class Meta:
         verbose_name = "Урок"
         verbose_name_plural = "Уроки"
+        permissions = [
+            ("can_view", "can_view_lesson"),
+            ("update", "can_update_lesson"),
+        ]
 
     def __str__(self):
         return self.name

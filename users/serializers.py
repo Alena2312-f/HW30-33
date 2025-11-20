@@ -26,6 +26,7 @@ class UserSerializer(serializers.ModelSerializer):
             "avatar",
             "first_name",
             "last_name",
+            "payments",
         ]
         extra_kwargs = {"password": {"write_only": True, "required": False}}  # Пароль только для записи
 
