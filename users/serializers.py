@@ -45,28 +45,6 @@ class UserSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
 
-class RegistrationSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    password = serializers.CharField(write_only=True, min_length=8)  # Минимальная длина пароля
-    password2 = serializers.CharField(write_only=True, min_length=8, label="Повторите пароль")
-    first_name = serializers.CharField(required=False)
-    last_name = serializers.CharField(required=False)
-
-    def validate(self, data):
-        if data["password"] != data["password2"]:
-            raise serializers.ValidationError({"password": "Пароль не совпадает"})
-        return data
-
-    def create(self, validated_data):
-        validated_data.pop("password2")
-        user = User.objects.create_user(
-            email=validated_data["email"],
-            password=validated_data["password"],
-            first_name=validated_data.get("first_name", ""),
-            last_name=validated_data.get("last_name", ""),
-        )
-        return user
-
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod

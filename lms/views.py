@@ -25,10 +25,16 @@ class CourseViewSet(viewsets.ModelViewSet):
 class LessonListCreateAPIView(generics.ListCreateAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
-    permission_classes = [permissions.IsAuthenticated, ~IsModerator]
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+
+    def get_permissions(self):
+        if self.request.method == "POST":
+            permission_classes = [permissions.IsAuthenticated, ~IsModerator]
+        else:
+            permission_classes = [permissions.IsAuthenticated]
+        return [permission() for permission in permission_classes]
 
 
 class LessonRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):

@@ -5,16 +5,9 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 from users.models import Payment, User
 from users.permissions import IsOwner
-from users.serializers import (MyTokenObtainPairSerializer, PaymentSerializer, PublicUserSerializer,
-                               RegistrationSerializer, UserSerializer)
+from users.serializers import (MyTokenObtainPairSerializer, PaymentSerializer, PublicUserSerializer, UserSerializer)
 
 # Create your views here.
-
-
-class RegistrationAPIView(generics.CreateAPIView):
-    serializer_class = RegistrationSerializer
-    permission_classes = [AllowAny]
-
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
