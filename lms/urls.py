@@ -19,6 +19,7 @@ urlpatterns = [
         LessonRetrieveUpdateDestroyAPIView.as_view(),
         name="lesson-retrieve-update-destroy",
     ),
+    path("subscriptions/", views.SubscriptionAPIView.as_view(), name="subscription")
 ]
 
 urlpatterns += router.urls
