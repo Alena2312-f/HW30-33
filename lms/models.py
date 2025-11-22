@@ -1,7 +1,11 @@
+from django.conf import settings
 from django.db import models
 
 
 class Course(models.Model):
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="courses", null=True, blank=True
+    )
     name = models.CharField(max_length=255)
     preview = models.ImageField(upload_to="course_previews/", blank=True, null=True)
     description = models.TextField()
@@ -9,12 +13,19 @@ class Course(models.Model):
     class Meta:
         verbose_name = "Курс"
         verbose_name_plural = "Курсы"
+        permissions = [
+            ("can_view", "can_view_course"),
+            ("update", "can_update_course"),
+        ]
 
     def __str__(self):
         return self.name
 
 
 class Lesson(models.Model):
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="lessons", null=True, blank=True
+    )
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="lessons")
     name = models.CharField(max_length=255)
     description = models.TextField()
@@ -24,6 +35,10 @@ class Lesson(models.Model):
     class Meta:
         verbose_name = "Урок"
         verbose_name_plural = "Уроки"
+        permissions = [
+            ("can_view", "can_view_lesson"),
+            ("update", "can_update_lesson"),
+        ]
 
     def __str__(self):
         return self.name
