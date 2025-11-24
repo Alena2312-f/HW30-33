@@ -63,6 +63,7 @@ class CourseViewSet(viewsets.ModelViewSet):
 class LessonListCreateAPIView(generics.ListCreateAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
+    pagination_class = CoursePaginator
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -83,7 +84,7 @@ class LessonRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
         if self.request.method in ["PUT", "PATCH"]:
             permission_classes = [permissions.IsAuthenticated, IsModerator | IsOwner]
         elif self.request.method == "DELETE":
-            permission_classes = [permissions.IsAuthenticated, IsOwner, ~IsModerator]
+            permission_classes = [permissions.IsAuthenticated, IsOwner]
         else:
             permission_classes = [permissions.IsAuthenticated]
         return [permission() for permission in permission_classes]

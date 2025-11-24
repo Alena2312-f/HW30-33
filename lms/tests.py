@@ -77,7 +77,7 @@ class LessonTests(APITestCase):
             "lms:lesson-list-create"
         )  # Используйте имя, которое вы указали в urls.py
         response = self.client.get(url)
-        data = response.json()
+        #print(response.json())
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
@@ -86,12 +86,11 @@ class LessonTests(APITestCase):
             "lms:lesson-list-create"
         )  # Используйте имя, которое вы указали в urls.py
         data = {
-            "owner": "1",
-            "course_id": "1",
+            "owner": self.user.pk,
+            "course": self.course.pk,
             "name": "Test Lesson 2",
             "description": "Test Lesson 2",
             "video_link": "https://www.youtube.com/",
-
         }
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
