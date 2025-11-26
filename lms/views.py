@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 
 from lms.models import Course, Lesson
-from lms.paginators import CoursePaginator
+from lms.paginators import CoursePaginator, LessonPaginator
 from lms.serializers import CourseSerializer, LessonSerializer
 from users.models import Subscription
 from users.permissions import IsModerator, IsNotModerator, IsOwner
@@ -63,7 +63,7 @@ class CourseViewSet(viewsets.ModelViewSet):
 class LessonListCreateAPIView(generics.ListCreateAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
-    pagination_class = CoursePaginator
+    pagination_class = LessonPaginator
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
