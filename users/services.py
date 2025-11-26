@@ -30,9 +30,7 @@ def create_stripe_product(name: str, description: str) -> str | None:
         return None
 
 
-def create_stripe_price(
-    product_id: str, amount: float, currency: str = "usd"
-) -> str | None:
+def create_stripe_price(product_id: str, amount: float, currency: str = "usd") -> str | None:
     """
     Создает цену в Stripe для продукта.
     :param product_id: ID продукта в Stripe.
@@ -54,9 +52,7 @@ def create_stripe_price(
         return None
 
 
-def create_stripe_checkout_session(
-    price_id: str, success_url: str, cancel_url: str
-) -> str | None:
+def create_stripe_checkout_session(price_id: str, success_url: str, cancel_url: str) -> str | None:
     """
     Создает сессию Checkout в Stripe.
     :param price_id: ID цены в Stripe.

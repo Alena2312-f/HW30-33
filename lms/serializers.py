@@ -29,10 +29,7 @@ class CourseSerializer(serializers.ModelSerializer):
     def get_lessons_count(self, obj):
         return obj.lessons.count()
 
-
     def get_is_subscribed(self, obj):
-        user = self.context[
-            "request"
-        ].user  # Получить текущего пользователя из контекста запроса
+        user = self.context["request"].user  # Получить текущего пользователя из контекста запроса
         if user.is_authenticated:
             return obj.subscriptions.filter(user=user).exists()
