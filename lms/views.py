@@ -1,14 +1,52 @@
-from rest_framework import generics, permissions, viewsets
+from rest_framework import generics, permissions, viewsets, status
 from rest_framework.decorators import permission_classes
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from django.shortcuts import get_object_or_404
 
 from lms.models import Course, Lesson
+from lms.paginators import CoursePaginator, LessonPaginator
 from lms.serializers import CourseSerializer, LessonSerializer
+from users.models import Subscription
 from users.permissions import IsModerator, IsNotModerator, IsOwner
+
+
+class SubscriptionAPIView(APIView):
+    def post(self, request, *args, **kwargs):
+        user = request.user  # получаем пользователя из self.request
+        course_id = request.data.get(
+            "course_id"
+        )  # получаем id курса из self.request.data
+
+        if not course_id:
+            return Response(
+                {"error": "Course ID is required"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        course_item = get_object_or_404(
+            Course, id=course_id
+        )  # получаем объект курса из базы с помощью get_object_or_404
+
+        subs_item = Subscription.objects.filter(
+            user=user, course=course_item
+        )  # получаем объекты подписок по текущему пользователю и курса
+
+        # Если подписка у пользователя на этот курс есть - удаляем ее
+        if subs_item.exists():
+            subs_item.delete()
+            message = "подписка удалена"
+        # Если подписки у пользователя на этот курс нет - создаем ее
+        else:
+            Subscription.objects.create(user=user, course=course_item)
+            message = "подписка добавлена"
+        # Возвращаем ответ в API
+        return Response({"message": message})
 
 
 class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
+    pagination_class = CoursePaginator
 
     def get_permissions(self):
         if self.action in ["update", "patrial_update"]:
@@ -25,6 +63,7 @@ class CourseViewSet(viewsets.ModelViewSet):
 class LessonListCreateAPIView(generics.ListCreateAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
+    pagination_class = LessonPaginator
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -45,7 +84,7 @@ class LessonRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
         if self.request.method in ["PUT", "PATCH"]:
             permission_classes = [permissions.IsAuthenticated, IsModerator | IsOwner]
         elif self.request.method == "DELETE":
-            permission_classes = [permissions.IsAuthenticated, IsOwner, ~IsModerator]
+            permission_classes = [permissions.IsAuthenticated, IsOwner]
         else:
             permission_classes = [permissions.IsAuthenticated]
         return [permission() for permission in permission_classes]
