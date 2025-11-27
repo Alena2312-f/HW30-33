@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from drf_spectacular.utils import extend_schema
 from rest_framework import generics, permissions, status, viewsets
 from rest_framework.decorators import permission_classes
 from rest_framework.response import Response
@@ -39,13 +40,13 @@ class SubscriptionAPIView(APIView):
         return Response({"message": message})
 
 
+@extend_schema(tags=["Courses"], description="CRUD operations for courses")
 class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
-    pagination_class = CoursePaginator
 
     def get_permissions(self):
-        if self.action in ["update", "patrial_update"]:
+        if self.action in ["update", "partial_update"]:
             permission_classes = [permissions.IsAuthenticated, IsModerator | IsOwner]
         elif self.action == "destroy":
             permission_classes = [permissions.IsAuthenticated, IsOwner, ~IsModerator]
@@ -55,7 +56,11 @@ class CourseViewSet(viewsets.ModelViewSet):
             permission_classes = [permissions.IsAuthenticated]
         return [permission() for permission in permission_classes]
 
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
+
+@extend_schema(tags=["Lessons"], description="List and create Lessons")
 class LessonListCreateAPIView(generics.ListCreateAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
@@ -72,6 +77,7 @@ class LessonListCreateAPIView(generics.ListCreateAPIView):
         return [permission() for permission in permission_classes]
 
 
+@extend_schema(tags=["Lessons"], description="Retrieve, update and destroy Lesson")
 class LessonRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
