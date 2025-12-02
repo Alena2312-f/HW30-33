@@ -45,20 +45,20 @@ class Payment(models.Model):
     PAYMENT_METHOD_CHOICES = [
         ("cash", "Наличные"),
         ("transfer", "Перевод на счет"),
+        ("stripe", "Stripe"),
     ]
     payment_method = models.CharField(max_length=10, choices=PAYMENT_METHOD_CHOICES)
+    stripe_checkout_session_id = models.CharField(max_length=255, blank=True, null=True)  # ID сессии
+    payment_url = models.URLField(blank=True, null=True)  # Добавляем поле для URL оплаты
+    is_paid = models.BooleanField(default=False)  # Поле для статуса оплаты
 
     def __str__(self):
         return f"Payment by {self.user} on {self.payment_date}"
 
 
 class Subscription(models.Model):
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="subscriptions"
-    )
-    course = models.ForeignKey(
-        "lms.Course", on_delete=models.CASCADE, related_name="subscriptions"
-    )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="subscriptions")
+    course = models.ForeignKey("lms.Course", on_delete=models.CASCADE, related_name="subscriptions")
 
     class Meta:
         unique_together = (

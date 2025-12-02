@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import AuthUser, TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import Token
 
-from users.models import Payment, User, Subscription
+from users.models import Payment, Subscription, User
 
 
 class PaymentSerializer(serializers.ModelSerializer):
@@ -79,3 +79,8 @@ class PublicUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
         fields = ["id", "email", "first_name", "last_name", "phone", "city", "avatar"]
+
+
+class PaymentStatusResponse(serializers.Serializer):
+    status = serializers.CharField(help_text="Статус платежа в Stripe")
+    payment_id = serializers.IntegerField(help_text="ID платежа в системе")

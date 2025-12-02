@@ -1,8 +1,9 @@
-from rest_framework import generics, permissions, viewsets, status
+from django.shortcuts import get_object_or_404
+from drf_spectacular.utils import extend_schema
+from rest_framework import generics, permissions, status, viewsets
 from rest_framework.decorators import permission_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.shortcuts import get_object_or_404
 
 from lms.models import Course, Lesson
 from lms.paginators import CoursePaginator, LessonPaginator
@@ -14,14 +15,10 @@ from users.permissions import IsModerator, IsNotModerator, IsOwner
 class SubscriptionAPIView(APIView):
     def post(self, request, *args, **kwargs):
         user = request.user  # получаем пользователя из self.request
-        course_id = request.data.get(
-            "course_id"
-        )  # получаем id курса из self.request.data
+        course_id = request.data.get("course_id")  # получаем id курса из self.request.data
 
         if not course_id:
-            return Response(
-                {"error": "Course ID is required"}, status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({"error": "Course ID is required"}, status=status.HTTP_400_BAD_REQUEST)
 
         course_item = get_object_or_404(
             Course, id=course_id
@@ -43,13 +40,13 @@ class SubscriptionAPIView(APIView):
         return Response({"message": message})
 
 
+@extend_schema(tags=["Courses"], description="CRUD operations for courses")
 class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
-    pagination_class = CoursePaginator
 
     def get_permissions(self):
-        if self.action in ["update", "patrial_update"]:
+        if self.action in ["update", "partial_update"]:
             permission_classes = [permissions.IsAuthenticated, IsModerator | IsOwner]
         elif self.action == "destroy":
             permission_classes = [permissions.IsAuthenticated, IsOwner, ~IsModerator]
@@ -59,7 +56,11 @@ class CourseViewSet(viewsets.ModelViewSet):
             permission_classes = [permissions.IsAuthenticated]
         return [permission() for permission in permission_classes]
 
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
+
+@extend_schema(tags=["Lessons"], description="List and create Lessons")
 class LessonListCreateAPIView(generics.ListCreateAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
@@ -76,6 +77,7 @@ class LessonListCreateAPIView(generics.ListCreateAPIView):
         return [permission() for permission in permission_classes]
 
 
+@extend_schema(tags=["Lessons"], description="Retrieve, update and destroy Lesson")
 class LessonRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
