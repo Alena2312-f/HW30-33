@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from datetime import timedelta
 from pathlib import Path
+from celery.schedules import crontab
 
 from dotenv import load_dotenv
 
@@ -50,6 +51,8 @@ INSTALLED_APPS = [
     "django_filters",
     "rest_framework_simplejwt",
     "drf_spectacular",
+    "django_celery_beat",
+    "mail_templated",
 ]
 
 MIDDLEWARE = [
@@ -187,4 +190,27 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "API для системы LMS",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": True,  # Включаем схему для отображения в браузере
+}
+
+
+# Celery settings
+CELERY_BROKER_URL = os.environ.get(
+    "REDIS_URL", "redis://localhost:6379/0"
+)  # Redis URL из переменной окружения
+CELERY_RESULT_BACKEND = os.environ.get(
+    "REDIS_URL", "redis://localhost:6379/0"
+)  # Redis URL из переменной окружения
+CELERY_ACCEPT_CONTENT = ["application/json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = "UTC"
+
+# Celery Beat settings
+CELERY_BEAT_SCHEDULE = {
+    "block_inactive_users": {
+        "task": "users.tasks.block_inactive_users",  # Путь к задаче
+        "schedule": crontab(
+            hour=0, minute=0, day_of_month="1"
+        ),  # Запускать каждый месяц 1-го числа в 00:00
+    },
 }
