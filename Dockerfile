@@ -1,4 +1,4 @@
-FROM python:3.10-slim-buster
+FROM python:>=3.13
 
 # Установка системных зависимостей (если нужны)
 # RUN apt-get update && apt-get install -y --no-install-recommends <ваши_зависимости>
