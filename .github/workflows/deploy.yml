@@ -1,9 +1,6 @@
 name: Deploy to Server with Docker and Poetry
 
-on:
-  push:
-    branches:
-      - develop
+on: [push]
 
 jobs:
   test:
