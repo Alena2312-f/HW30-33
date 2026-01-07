@@ -1,4 +1,4 @@
-FROM python:>=3.13
+FROM python:3.13
 
 # Установка системных зависимостей (если нужны)
 # RUN apt-get update && apt-get install -y --no-install-recommends <ваши_зависимости>
@@ -9,10 +9,10 @@ RUN pip install --no-cache-dir poetry
 WORKDIR /app
 
 # Копируем pyproject.toml и poetry.lock
-COPY pyproject.toml poetry.lock ./
+COPY pyproject.toml ./
 
 # Установка зависимостей проекта с помощью Poetry
-RUN poetry config virtualenvs.create false && poetry install --no-interaction --no-ansi
+RUN poetry config virtualenvs.create false && poetry install --no-root
 
 # Копируем код проекта
 COPY . .
