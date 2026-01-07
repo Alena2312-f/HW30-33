@@ -8,17 +8,16 @@ RUN pip install --no-cache-dir poetry
 
 WORKDIR /app
 
-# Копируем pyproject.toml и poetry.lock
-COPY pyproject.toml ./
-
-# Установка зависимостей проекта с помощью Poetry
-RUN poetry config virtualenvs.create false && poetry install --no-root
+# Копируем файл с зависимостями и устанавливаем их
+COPY requirements.txt ./
+RUN pip install -r requirements.txt
 
 # Копируем код проекта
 COPY . .
 
-# Собираем статику (если требуется)
-RUN poetry run python manage.py collectstatic --noinput
+# Открываем порт 8000 для взаимодействия с приложением
+EXPOSE 8000
 
-# Запускаем приложение с помощью Gunicorn
-CMD ["gunicorn", "core.wsgi:application", "--bind", "0.0.0.0:8000"]
+# # Определяем команду для запуска приложения
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
