@@ -29,7 +29,8 @@ jobs:
         pip install -r requirements.txt
 
     - name: Run tests
-      run: python manage.py test
+      run: |
+        pytest habits/tests.py users/tests.py telegram_bot/tests.py
 
       
 
