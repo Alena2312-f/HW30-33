@@ -1,20 +1,29 @@
 
 services:
   db:
-    image: postgres:13
+    image: postgres:latest
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     environment:
-      POSTGRES_USER: your_user
-      POSTGRES_PASSWORD: your_password
-      POSTGRES_DB: habit_tracker_db
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d ${DATABASE_NAME} -U ${DATABASE_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
 
   redis:
     image: redis:latest
 
   django:
     build: .
-    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000
+    command: sh -c "python manage.py migrate && gunicorn config.wsgi:application --bind 0.0.0.0:8000"
     volumes:
       - .:/app
       - static_volume:/app/staticfiles
@@ -24,12 +33,6 @@ services:
     depends_on:
       - db
       - redis
-    environment:
-      DJANGO_SETTINGS_MODULE: config.settings
-      POSTGRES_USER: ${DATABASE_USER}  # Используем переменные окружения из .env
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
-      POSTGRES_DB: ${DATABASE_NAME}
-      REDIS_URL: redis://redis:6379/0
     env_file:
       - .env
 
@@ -49,6 +52,21 @@ services:
       REDIS_URL: redis://redis:6379/0
     env_file:
       - .env
+
+  celery-beat:
+    build: .
+    command: celery -A config.celery_app beat -l info
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+      - backend
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
+
 
   nginx:
     build: ./nginx

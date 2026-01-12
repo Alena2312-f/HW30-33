@@ -225,3 +225,15 @@ CELERY_BEAT_SCHEDULE = {
         ),  # Запускать каждый месяц 1-го числа в 00:00
     },
 }
+
+CACHE_ENABLED = True
+if CACHE_ENABLED:
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": "redis://127.0.0.1:6379/1",  # Адрес вашего Redis сервера
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            },
+        }
+    }
