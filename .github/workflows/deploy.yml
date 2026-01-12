@@ -30,6 +30,8 @@ jobs:
 
     - name: Run tests
       run: python manage.py test
+      env:
+        SECRET_KEY: test_secret_key
 
 
       
@@ -43,7 +45,7 @@ jobs:
 
     steps:
     - name: Set up SSH
-      uses: webfactory/ssh-agent@v0.8.1
+      uses: webfactory/ssh-agent@v0.8.0
       with:
         ssh-private-key: ${{ secrets.SSH_KEY }}
 
