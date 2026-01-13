@@ -33,38 +33,6 @@ services:
       - redis
     env_file:
       - .env
-  backend:
-    build: .  # Использует Dockerfile в корне проекта
-    command: >
-      sh -c "python manage.py migrate &&
-             python manage.py collectstatic --noinput &&
-             gunicorn core.wsgi:application --bind 0.0.0.0:8000"
-    volumes:
-      - .:/app
-      - static_volume:/app/staticfiles
-    ports:
-      - "8000:8000"
-    depends_on:
-      - db
-      - redis
-    environment:
-      DJANGO_SECRET_KEY: ${SECRET_KEY}
-      DJANGO_DEBUG: ${DEBUG}
-      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
-      DJANGO_DATABASE_NAME: ${NAME}
-      DJANGO_DATABASE_USER: ${USER}
-      DJANGO_DATABASE_PASSWORD: ${PASSWORD}
-      DJANGO_DATABASE_HOST: db
-      DJANGO_DATABASE_PORT: 5432
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
-      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
-    healthcheck:
-      test: [ "CMD-SHELL", "curl --fail http://localhost:8000/health/ || exit 1" ]
-      interval: 30s
-      timeout: 10s
-      retries: 5
 
   celery:
     build: .
@@ -90,7 +58,7 @@ services:
       - .:/app
     depends_on:
       - redis
-      - backend
+      - django
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
